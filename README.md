@@ -8,6 +8,7 @@ ULX Whitelist is an unofficial module for ULX. It is not made by or affiliated w
 
 - **Rejects players before they download anything.** The check runs in the `CheckPassword` hook, at the same point where the server password is checked.
 - **Managed with ULX.** Let whole groups in with an access string, or add individual players with commands from chat, the console or RCON.
+- **Its own tab in the ULX menu**, next to Bans: see who can join, search, add and remove players.
 - **Accepts every common SteamID format:** `STEAM_0:X:Y`, `STEAM_1:X:Y`, SteamID64 and `[U:1:N]`. (`ulx adduserid` silently treats a SteamID64 as a UniqueID; these commands convert it.)
 - **Works with or without `sv_password`.**
 - **Kicks players who lose access** while the whitelist is on (optional).
@@ -81,6 +82,18 @@ The whitelist is on as soon as the addon is installed. Admins and superadmins ca
 The chat line of these commands is hidden, so SteamIDs don't end up in chat. Changes are echoed silently: only the caller and players with `ulx hiddenecho` see them, and they are written to the ULX log.
 
 If a player can still join through their group after `unwhitelist`, the command says so and prints the line that blocks them.
+
+## The Whitelist tab
+
+ULX Whitelist adds a **Whitelist** tab to the ULX menu (`!menu`), after Bans. Anyone with `ulx whitelistshow` can open it. It shows:
+
+- everyone who can join, how they get in (a personal entry or a group), and who is explicitly denied, with a search box;
+- the groups that have the access;
+- a switch for `ulx whitelist_enabled`.
+
+To add a player, type their SteamID in the box at the bottom and press **Add**. To take a personal entry off the whitelist, select it and press **Remove**. Right-click a player to copy their SteamID, deny them access or lift a deny.
+
+Every button runs the matching ULX command, so it needs the same access and is logged the same way. The list updates by itself when permissions change.
 
 ## Who can join
 
