@@ -76,6 +76,7 @@ The whitelist is on as soon as the addon is installed. Admins and superadmins ca
 | `ulx unwhitelist <player>` | `!unwhitelist` | superadmin | Removes the player's personal whitelist entry. If that was their only way in, they are kicked (see `ulx whitelist_kick`). |
 | `ulx unwhitelistid <steamid>` | `!unwhitelistid` | superadmin | The same, by SteamID. |
 | `ulx whitelistcheck <steamid>` | `!whitelistcheck` | admin | Shows whether a SteamID can join and why. |
+| `ulx whitelistshow` | `!whitelistshow` | admin | Prints everyone who can join to your console: the groups with access, the players who get in through a group or a personal entry, and explicit denies. |
 
 The chat line of these commands is hidden, so SteamIDs don't end up in chat. Changes are echoed silently: only the caller and players with `ulx hiddenecho` see them, and they are written to the ULX log.
 
@@ -89,7 +90,7 @@ While the whitelist is on, a player can join if ULib grants them the `ulx whitel
 2. Then personal allows. `ulx whitelistid` adds one.
 3. Then the player's group and every group it inherits from.
 
-SteamIDs that ULib doesn't know are treated as members of `user`.
+SteamIDs that ULib doesn't know are treated as members of `user`. Run `ulx whitelistshow` to see the result for everyone ULib knows.
 
 By default `admin` has the access, and `superadmin` gets it through inheritance. ULib applies this default only when it first sees the access string; after that, your changes in XGUI or with `ulx groupallow` / `ulx groupdeny` are kept.
 
@@ -140,6 +141,7 @@ The server side exposes a small API in the `ULXWhitelist` table:
 | `ULXWhitelist.CheckSteamID( steamid, ip )` | `allowed, reason`; `ip` is optional |
 | `ULXWhitelist.Grant( steamid )` | `true` if a personal entry was added |
 | `ULXWhitelist.Revoke( steamid )` | `true` if a personal entry was removed |
+| `ULXWhitelist.List()` | `{ everyone, groups, allowed, denied }`: who can join, as printed by `ulx whitelistshow` |
 | `ULXWhitelist.IsEnabled()` | whether the whitelist is on |
 | `ULXWhitelist.Enforce( ply )` | `true` if the player was kicked |
 

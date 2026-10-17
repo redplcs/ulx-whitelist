@@ -10,6 +10,7 @@
 	ulx unwhitelist <player>        !unwhitelist
 	ulx unwhitelistid <steamid>     !unwhitelistid
 	ulx whitelistcheck <steamid>    !whitelistcheck
+	ulx whitelistshow               !whitelistshow
 
 	<steamid> can be STEAM_0:X:Y, STEAM_1:X:Y, a SteamID64 or [U:1:N].
 ]]
@@ -157,3 +158,59 @@ local whitelistcheck = register( "ulx whitelistcheck", ulx.whitelistcheck, "!whi
 whitelistcheck:addParam{ type=ULib.cmds.StringArg, hint=STEAMID_HINT }
 whitelistcheck:defaultAccess( ULib.ACCESS_ADMIN )
 whitelistcheck:help( "Shows whether a SteamID can join and why." )
+
+
+------------------------------ Whitelist Show ------------------------------
+local function describe( entry )
+	if entry.name ~= "" then return string.format( "%s (%s)", entry.name, entry.id ) end
+	return entry.id
+end
+
+-- The list can be long, so it goes to the caller's console rather than chat.
+function ulx.whitelistshow( calling_ply )
+	local list = ULXWhitelist.List()
+	local lines = {}
+	local function add( fmt, ... ) lines[ #lines + 1 ] = string.format( fmt, ... ) end
+
+	add( "ULX Whitelist is %s.", ULXWhitelist.IsEnabled() and "ON" or "OFF" )
+	if list.everyone then
+		add( "The user group has the access: everyone who is not explicitly denied can join." )
+	end
+
+	add( "Groups with access (%d):", #list.groups )
+	for _, group in ipairs( list.groups ) do
+		if group.via then
+			add( "  %s (through %s)", group.name, group.via )
+		else
+			add( "  %s", group.name )
+		end
+	end
+
+	add( "Players who can join (%d):", #list.allowed )
+	for _, entry in ipairs( list.allowed ) do
+		local how
+		if not entry.via then
+			how = "personal entry"
+		elseif entry.via == entry.group then
+			how = "group " .. entry.group
+		else
+			how = string.format( "group %s (through %s)", entry.group, entry.via )
+		end
+		add( "  %s - %s", describe( entry ), how )
+	end
+
+	add( "Explicitly denied (%d):", #list.denied )
+	for _, entry in ipairs( list.denied ) do
+		add( "  %s - group %s", describe( entry ), entry.group )
+	end
+
+	for _, line in ipairs( lines ) do
+		if calling_ply == nil then MsgN( line ) else ULib.console( calling_ply, line ) end -- Never broadcast.
+	end
+	if IsValid( calling_ply ) then
+		reply( calling_ply, "The whitelist was printed to your console." )
+	end
+end
+local whitelistshow = register( "ulx whitelistshow", ulx.whitelistshow, "!whitelistshow" )
+whitelistshow:defaultAccess( ULib.ACCESS_ADMIN )
+whitelistshow:help( "Prints everyone who can join to your console." )

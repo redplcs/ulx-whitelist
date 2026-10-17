@@ -31,6 +31,7 @@ WL.COMMANDS = {
 	"ulx unwhitelist",
 	"ulx unwhitelistid",
 	"ulx whitelistcheck",
+	"ulx whitelistshow",
 }
 
 local LOG_PREFIX = "[ULX Whitelist] "
@@ -188,6 +189,44 @@ end
 -- Access check
 --------------------------------------------------------------------------------
 
+local function userGroupOf( info )
+	local group = info and info.group
+	if type( group ) ~= "string" or group == "" then return ULib.ACCESS_ALL end
+	return group
+end
+
+-- Returns the group in the inheritance chain of group that grants the
+-- whitelist access, or nil.
+local function grantingGroup( group )
+	local visited = {}
+	while group and not visited[ group ] do
+		visited[ group ] = true
+		local groupInfo = ULib.ucl.groups[ group ]
+		if not groupInfo then
+			-- ULib creates a missing group when such a player connects, inheriting from "user".
+			group = ULib.ACCESS_ALL
+		elseif allows( groupInfo.allow, WL.ACCESS ) then
+			return group
+		else
+			group = ULib.ucl.groupInheritsFrom( group )
+		end
+	end
+end
+
+-- Decides access for one ULib user entry, or for an unknown SteamID when info
+-- is nil. Returns allowed, reason, and the granting group when a group grants it.
+local function evaluate( info )
+	if info then
+		if denies( info.deny, WL.ACCESS ) then return false, "explicitly denied" end
+		if allows( info.allow, WL.ACCESS ) then return true, "personal whitelist entry" end
+	end
+
+	local group = userGroupOf( info )
+	local granting = grantingGroup( group )
+	if granting then return true, string.format( "group '%s'", granting ), granting end
+	return false, string.format( "not whitelisted (group '%s')", group )
+end
+
 --[[
 	WL.CheckSteamID( steamid, ip ) -> allowed, reason
 
@@ -198,34 +237,59 @@ end
 	"user". ip is optional; for a connected player it is looked up.
 ]]
 function WL.CheckSteamID( steamid, ip )
-	local access = WL.ACCESS
-	local info = findUser( steamid, ip or onlineIP( steamid ) )
+	local allowed, reason = evaluate( findUser( steamid, ip or onlineIP( steamid ) ) )
+	return allowed, reason
+end
 
-	if info then
-		if denies( info.deny, access ) then return false, "explicitly denied" end
-		if allows( info.allow, access ) then return true, "personal whitelist entry" end
-	end
+local function byName( a, b )
+	local an, bn = a.name:lower(), b.name:lower()
+	if an ~= bn then return an < bn end
+	return a.id < b.id
+end
 
-	local group = info and info.group
-	if type( group ) ~= "string" or group == "" then group = ULib.ACCESS_ALL end
-	local userGroup = group
+--[[
+	WL.List() -> list
 
-	local visited = {}
-	while group and not visited[ group ] do
-		visited[ group ] = true
-		local groupInfo = ULib.ucl.groups[ group ]
-		if groupInfo then
-			if allows( groupInfo.allow, access ) then
-				return true, string.format( "group '%s'", group )
-			end
-			group = ULib.ucl.groupInheritsFrom( group )
-		else
-			-- ULib creates a missing group when such a player connects, inheriting from "user".
-			group = ULib.ACCESS_ALL
+	Everyone ULib knows who can join, using the same rules as WL.CheckSteamID.
+	Players ULib does not know are not listed; they can join only when
+	list.everyone is true.
+
+	list.everyone  true if the "user" group has the access
+	list.groups    { name, via } for each group with the access, sorted by name;
+	               via is the group it inherits the access from, or nil
+	list.allowed   { id, name, group, via } for each user who can join;
+	               via is the granting group, or nil for a personal entry
+	list.denied    { id, name, group } for each user who is explicitly denied
+]]
+function WL.List()
+	local list = { everyone = grantingGroup( ULib.ACCESS_ALL ) ~= nil, groups = {}, allowed = {}, denied = {} }
+
+	for name in pairs( ULib.ucl.groups ) do
+		local granting = grantingGroup( name )
+		if granting then
+			list.groups[ #list.groups + 1 ] = { name = name, via = granting ~= name and granting or nil }
 		end
 	end
+	table.sort( list.groups, function( a, b ) return a.name < b.name end )
 
-	return false, string.format( "not whitelisted (group '%s')", userGroup )
+	for id, info in pairs( ULib.ucl.users ) do
+		local allowed, _, granting = evaluate( info )
+		local entry = {
+			id = id,
+			name = type( info.name ) == "string" and info.name or "",
+			group = userGroupOf( info ),
+			via = granting,
+		}
+		if allowed then
+			list.allowed[ #list.allowed + 1 ] = entry
+		elseif denies( info.deny, WL.ACCESS ) then
+			list.denied[ #list.denied + 1 ] = entry
+		end
+	end
+	table.sort( list.allowed, byName )
+	table.sort( list.denied, byName )
+
+	return list
 end
 
 -- Used by the CheckPassword hook. Returns allowed, reason, steamid.
