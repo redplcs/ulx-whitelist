@@ -166,8 +166,8 @@ local function describe( entry )
 	return entry.id
 end
 
--- The list can be long, so it goes to the caller's console rather than chat.
-function ulx.whitelistshow( calling_ply )
+-- Prints the list to the caller's console. It can be long, so it never goes to chat.
+local function printList( calling_ply )
 	local list = ULXWhitelist.List()
 	local lines = {}
 	local function add( fmt, ... ) lines[ #lines + 1 ] = string.format( fmt, ... ) end
@@ -207,10 +207,21 @@ function ulx.whitelistshow( calling_ply )
 	for _, line in ipairs( lines ) do
 		if calling_ply == nil then MsgN( line ) else ULib.console( calling_ply, line ) end -- Never broadcast.
 	end
+end
+
+-- Players get the Whitelist tab in XGUI. The server console and RCON get the
+-- list as text, and so do players if XGUI is not running on the server.
+function ulx.whitelistshow( calling_ply )
+	if IsValid( calling_ply ) and xgui then
+		ULib.clientRPC( calling_ply, "xgui.show", "Whitelist" )
+		return
+	end
+
+	printList( calling_ply )
 	if IsValid( calling_ply ) then
 		reply( calling_ply, "The whitelist was printed to your console." )
 	end
 end
 local whitelistshow = register( "ulx whitelistshow", ulx.whitelistshow, "!whitelistshow" )
 whitelistshow:defaultAccess( ULib.ACCESS_ADMIN )
-whitelistshow:help( "Prints everyone who can join to your console." )
+whitelistshow:help( "Opens the Whitelist tab. From the server console or RCON, prints who can join." )

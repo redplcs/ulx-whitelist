@@ -77,7 +77,7 @@ The whitelist is on as soon as the addon is installed. Admins and superadmins ca
 | `ulx unwhitelist <player>` | `!unwhitelist` | superadmin | Removes the player's personal whitelist entry. If that was their only way in, they are kicked (see `ulx whitelist_kick`). |
 | `ulx unwhitelistid <steamid>` | `!unwhitelistid` | superadmin | The same, by SteamID. |
 | `ulx whitelistcheck <steamid>` | `!whitelistcheck` | admin | Shows whether a SteamID can join and why. |
-| `ulx whitelistshow` | `!whitelistshow` | admin | Prints everyone who can join to your console: the groups with access, the players who get in through a group or a personal entry, and explicit denies. |
+| `ulx whitelistshow` | `!whitelistshow` | admin | Opens the Whitelist tab. From the server console or RCON it prints everyone who can join: the groups with access, the players who get in through a group or a personal entry, and explicit denies. |
 
 The chat line of these commands is hidden, so SteamIDs don't end up in chat. Changes are echoed silently: only the caller and players with `ulx hiddenecho` see them, and they are written to the ULX log.
 
@@ -85,7 +85,7 @@ If a player can still join through their group after `unwhitelist`, the command 
 
 ## The Whitelist tab
 
-ULX Whitelist adds a **Whitelist** tab to the ULX menu (`!menu`), after Bans. Anyone with `ulx whitelistshow` can open it. It shows:
+ULX Whitelist adds a **Whitelist** tab to the ULX menu (`!menu`), after Bans. Anyone with `ulx whitelistshow` can open it, and `!whitelistshow` opens the menu straight on this tab. It shows:
 
 - everyone who can join, how they get in (a personal entry or a group), and who is explicitly denied, with a search box;
 - the groups that have the access;
@@ -103,7 +103,7 @@ While the whitelist is on, a player can join if ULib grants them the `ulx whitel
 2. Then personal allows. `ulx whitelistid` adds one.
 3. Then the player's group and every group it inherits from.
 
-SteamIDs that ULib doesn't know are treated as members of `user`. Run `ulx whitelistshow` to see the result for everyone ULib knows.
+SteamIDs that ULib doesn't know are treated as members of `user`. The Whitelist tab, or `ulx whitelistshow` in the server console, shows the result for everyone ULib knows.
 
 By default `admin` has the access, and `superadmin` gets it through inheritance. ULib applies this default only when it first sees the access string; after that, your changes in XGUI or with `ulx groupallow` / `ulx groupdeny` are kept.
 

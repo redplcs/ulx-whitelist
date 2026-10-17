@@ -7,7 +7,7 @@
 
 	ULX loads this file on the server from lua/ulx/modules/, after ULib and
 	ULX. The chat and console commands are defined in
-	lua/ulx/modules/sh/ulx_whitelist_commands.lua.
+	lua/ulx/modules/sh/ulx_whitelist.lua.
 ]]
 
 if not SERVER then return end
@@ -24,7 +24,7 @@ WL.ACCESS = "ulx whitelisted"
 -- Admins who can run this command are told about rejected connections.
 WL.MANAGE_ACCESS = "ulx whitelistid"
 
--- Commands registered by lua/ulx/modules/sh/ulx_whitelist_commands.lua.
+-- Commands registered by lua/ulx/modules/sh/ulx_whitelist.lua.
 WL.COMMANDS = {
 	"ulx whitelist",
 	"ulx whitelistid",
@@ -465,7 +465,7 @@ hook.Add( ulx.HOOK_ULXDONELOADING, "ULXWhitelist", function()
 	for _, cmd in ipairs( WL.COMMANDS ) do
 		local obj = ULib.cmds.translatedCmds[ cmd ]
 		if not obj then
-			WL.Log( "WARNING: command '%s' is missing. Check that ulx_whitelist_commands.lua is installed.", cmd )
+			WL.Log( "WARNING: command '%s' is missing. Check that lua/ulx/modules/sh/ulx_whitelist.lua is installed.", cmd )
 		elseif not obj.ulxWhitelist then
 			WL.Log( "WARNING: command '%s' is registered by another addon (for example Wordlist Kicker for ULX). Remove one of them.", cmd )
 		end
