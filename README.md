@@ -1,6 +1,6 @@
-<img src="workshop/icon.jpg" alt="ULX Whitelist icon" width="128" align="right">
-
 # ULX Whitelist
+
+<img src="workshop/icon.jpg" alt="ULX Whitelist icon" width="128" align="right">
 
 Server access whitelist for Garry's Mod, managed through ULX/ULib. Allow players by SteamID or by group; everyone else is rejected on connect, before downloading any content.
 
