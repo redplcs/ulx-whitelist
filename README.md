@@ -1,6 +1,10 @@
+<img src="workshop/icon.jpg" alt="ULX Whitelist icon" width="128" align="right">
+
 # ULX Whitelist
 
 Server access whitelist for Garry's Mod, managed through ULX/ULib. Allow players by SteamID or by group; everyone else is rejected on connect, before downloading any content.
+
+Available on the [Steam Workshop](https://steamcommunity.com/sharedfiles/filedetails/?id=3822151875).
 
 ULX Whitelist is an unofficial module for ULX. It is not made by or affiliated with Team Ulysses.
 
@@ -25,15 +29,14 @@ ULX Whitelist is an unofficial module for ULX. It is not made by or affiliated w
 
 ### Steam Workshop
 
-<!-- TODO: link the Workshop page once the addon is published. -->
-Add ULX Whitelist to your server's Workshop collection, next to ULX and ULib.
+Add [ULX Whitelist](https://steamcommunity.com/sharedfiles/filedetails/?id=3822151875) to your server's Workshop collection, next to ULX and ULib.
 
 ### Manually
 
 Download this repository (**Code → Download ZIP**) and extract it into `garrysmod/addons/`, or clone it there:
 
 ```sh
-git clone <repository URL> garrysmod/addons/ulx-whitelist
+git clone https://github.com/redplcs/ulx-whitelist.git garrysmod/addons/ulx-whitelist
 ```
 
 Then restart the server fully; a map change is not enough. The console should show:

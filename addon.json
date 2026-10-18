@@ -1,0 +1,15 @@
+{
+    "title": "ULX Whitelist - Server Access",
+    "description": "Server access whitelist for Garry's Mod, managed through ULX/ULib. Allow players by SteamID or by group; everyone else is rejected on connect, before downloading any content.",
+    "type": "ServerContent",
+    "tags": [
+        "roleplay"
+    ],
+    "ignore": [
+        ".*",
+        "*.md",
+        "LICENSE*",
+        "workshop/*",
+        "*.gma"
+    ]
+}
